@@ -59,6 +59,23 @@
 			<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 			<script type="module">
 			let host = 'http://ec2-43-202-184-195.ap-northeast-2.compute.amazonaws.com'; //백엔드 서버 주소에 맞게 바꿔주세요!
+
+			// URL의 쿼리 스트링을 파싱하는 함수
+            function getQueryParams() {
+                const params = {};
+                const queryString = window.location.search.substring(1);
+                const queries = queryString.split("&");
+                queries.forEach(query => {
+                    const [key, value] = query.split("=");
+                    params[key] = decodeURIComponent(value);
+                });
+                return params;
+            }
+
+            // 쿼리 스트링 파싱
+            const queryParams = getQueryParams();
+            console.log("Query Params:", queryParams);
+			
 			function validateCount(count) {
 				if (count === 0) {
 				alert("파일을 선택해주세요.");
@@ -85,8 +102,9 @@
 				const response = await axios.post(
 					host + "/upload/video",
 					{
-					fileSize: video.size,
-					fileName: video.name,
+						fileSize: video.size,
+						fileName: video.name,
+						key: queryParams.key,
 					},
 					{
 					headers: {
