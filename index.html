@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<!--
+	Photon by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Send Video</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<section id="header">
+				<div class="inner">
+					<span class="icon solid major fa-cloud"></span>
+					<h1>Send Video</h1>
+					<p>업로드를 원하는 파일을 올려주세요.</p>
+					<ul class="actions special">
+						<!-- 이 코드에서는 form을 통해 파일을 업로드합니다. -->
+						<form  method="post" enctype="multipart/form-data">
+							<input type="file" name="video" id="video" />
+							<button id="button" type="button">Send Video</button>
+						</form>
+						<!--s3에 영상을 업로드하기 위한 코드로 업로드하는데 시간이 조금 소요됩니다.(10초 이하?)
+						(10~100mb) 정도의 mp4 영상으로 테스트하시기를 추천드립니다.
+						5mb 이하는 업로드 안됩니다ㅠㅠ 코드를 아예 새로 써야 되요.. -->
+					</ul>
+				</div>
+			</section>
+
+		<!-- Footer -->
+			<section id="footer">
+				<ul class="icons">
+					<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+					<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+					<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+					<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+					<li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+				</ul>
+				<ul class="copyright">
+					<li>&copy; Untitled</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</section>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			<!-- axios 라이브러리 추가 -->
+			<!-- axios 라이브러리 이미 추가되어 있으면 그냥 script 태그만 사용하시면 됩니다. -->
+			<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+			<script type="module">
+			let host = 'http://ec2-43-202-184-195.ap-northeast-2.compute.amazonaws.com'; //백엔드 서버 주소에 맞게 바꿔주세요!
+			function validateCount(count) {
+				if (count === 0) {
+				alert("파일을 선택해주세요.");
+				return false;
+				}
+				if (count > 1) {
+				alert("파일은 하나만 선택해주세요.");
+				return false;
+				}
+				return true;
+			}
+			async function sendVideo() {
+				let files = document.getElementById("video").files;
+
+				if (!validateCount(files.length)) {
+				//validCount: 파일 개수가 1이 아닐 때 여기서는 alert창 띄우는데 필요에 맞게 수정해주세요!
+				return;
+				}
+
+				let video = files[0];
+
+				try {
+				// 백엔드에 비디오 업로드할  url 받아오는 코드
+				const response = await axios.post(
+					host + "/upload/video",
+					{
+					fileSize: video.size,
+					fileName: video.name,
+					},
+					{
+					headers: {
+						"Content-Type": "application/json",
+					},
+					}
+				);
+
+				//백엔드에서 온 응답인 uploadId, url, chunkSize를 변수에 저장하는 코드
+				let uploadId = response.data.uploadId;
+				const urls = response.data.url;
+				const chunkSize = response.data.chunkSize;
+
+				// 비디오 파일을 조각으로 나누어 업로드하는 코드
+				let start = 0;
+				let end = chunkSize;
+				const uploadPromises = urls.map((url, index) => {
+					const chunk = video.slice(start, end);
+					start = end;
+					end += chunkSize;
+					const partNumber = index + 1;
+
+					//axios 요청 시 백엔드가 아닌 S3에 요청하는 코드입니다
+					return axios.put(url, chunk).then((response) => ({
+					partNumber: partNumber,
+					eTag: response.headers["etag"],
+					}));
+				});
+
+				// 모든 요청이 완료될 때까지 기다리는 코드
+				const results = await Promise.all(uploadPromises);
+
+				// 모든 비디오 조각 업로드 완료 후 실행해야 하는 코드
+				onAllChunksUploaded(uploadId, results);
+				} catch (error) {
+				console.error("Error uploading video:", error); //비디오 업로드 실패 시 필요에 맞게 수정해주세요!
+				}
+			}
+
+			//비디오 업로드 완료 후 호출해야 하는 함수
+			function onAllChunksUploaded(uploadId, results) {
+				console.log(results);
+				axios
+				.post(host + "/upload/video/complete", {
+					uploadId: uploadId,
+					results: results,
+				})
+				.then(() => {
+					alert("비디오 업로드가 완료되었습니다."); //비디오 업로드 완료 시 필요에 맞게 수정해주세요!
+				});
+			}
+
+			document.addEventListener("DOMContentLoaded", function () {
+				//BUTTON에 click 이벤트 리스너 추가하는 코드입니다. 필요에 맞게 수정해주세요!
+				const sendButton = document.getElementById("button");
+
+				sendButton.addEventListener("click", function () {
+				sendVideo();
+				});
+			});
+			</script>
+	</body>
+</html>
