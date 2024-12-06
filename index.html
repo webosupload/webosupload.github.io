@@ -20,6 +20,7 @@
 					<span class="icon solid major fa-cloud"></span>
 					<h1>Send Video</h1>
 					<p>업로드를 원하는 파일을 올려주세요.</p>
+					<P>KEY = {}</P>
 					<ul class="actions special">
 						<!-- 이 코드에서는 form을 통해 파일을 업로드합니다. -->
 						<form  method="post" enctype="multipart/form-data">
@@ -86,7 +87,7 @@
 
             // 쿼리 스트링 파싱
             const queryParams = getQueryParams();
-            console.log("Query Params:", queryParams);
+			console.log("Key:", queryParams.key);
 			
 			function validateCount(count) {
 				if (count === 0) {
