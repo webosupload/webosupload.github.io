@@ -26,24 +26,36 @@
 							<input type="file" name="video" id="video" />
 							<button id="button" type="button">Send Video</button>
 						</form>
-						<!--s3에 영상을 업로드하기 위한 코드로 업로드하는데 시간이 조금 소요됩니다.(10초 이하?)
-						(10~100mb) 정도의 mp4 영상으로 테스트하시기를 추천드립니다.
-						5mb 이하는 업로드 안됩니다ㅠㅠ 코드를 아예 새로 써야 되요.. -->
+						<!--s3에 영상을 업로드하기 위한 코드로 업로드하는데 시간이 조금 소요됨.(10초 이하?) -->
 					</ul>
+				</div>
+			</section>
+		
+		<!-- One -->
+			<section id="one" class="main style1">
+				<div class="container">
+					<div class="row gtr-150">
+						<div class="col-6 col-12-medium">
+							<header class="major">
+								<h2>여러분을 위한 요리 플랫폼<br />
+								방구석 흑백요리사</h2>
+							</header>
+							<p>누구나 쉽게 흑백요리사 속 주인공이 될 수 있습니다. 나만의 요리 영상을 업로드하고, 다른 사용자들과 소통해보세요. 좋아요 수와 조회수를 반영하여 20인의 백 요리사를 선정합니다. 이 달의 백 요리사가 되어 보세요.</p>
+						</div>
+						<div class="col-6 col-12-medium imp-medium">
+							<span class="image fit"><img src="images/blackwhite.jpg" alt="" /></span>
+						</div>
+					</div>
 				</div>
 			</section>
 
 		<!-- Footer -->
 			<section id="footer">
 				<ul class="icons">
-					<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
-					<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
-					<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
-					<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-					<li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+					<li><a href="https://github.com/01choco/connected-2" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
 				</ul>
 				<ul class="copyright">
-					<li>&copy; Untitled</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					<li>&copy; 2024 Connected Flatform LG Electronics. </li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
 				</ul>
 			</section>
 
@@ -55,10 +67,10 @@
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
 			<!-- axios 라이브러리 추가 -->
-			<!-- axios 라이브러리 이미 추가되어 있으면 그냥 script 태그만 사용하시면 됩니다. -->
+
 			<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 			<script type="module">
-			let host = 'http://ec2-43-202-184-195.ap-northeast-2.compute.amazonaws.com'; //백엔드 서버 주소에 맞게 바꿔주세요!
+			let host = 'http://ec2-43-202-184-195.ap-northeast-2.compute.amazonaws.com'; //백엔드 서버 주소
 
 			// URL의 쿼리 스트링을 파싱하는 함수
             function getQueryParams() {
@@ -91,8 +103,8 @@
 				let files = document.getElementById("video").files;
 
 				if (!validateCount(files.length)) {
-				//validCount: 파일 개수가 1이 아닐 때 여기서는 alert창 띄우는데 필요에 맞게 수정해주세요!
-				return;
+					//validCount: 파일 개수가 1이 아닐 때 alert
+					return;
 				}
 
 				let video = files[0];
